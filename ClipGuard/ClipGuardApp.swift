@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct ClipGuardApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
     var body: some Scene {
-        WindowGroup {
-            ContentView()
+        // Required even if unused
+        Settings {
+            EmptyView()
         }
     }
 }
