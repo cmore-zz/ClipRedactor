@@ -32,7 +32,7 @@ final class Redactor {
         }
     }
 
-    private static let builtInMap: [String: (String, Bool)] = [
+    static let builtInMap: [String: (String, Bool)] = [
         "[REDACTED_OPENAI_KEY]": (#"sk-[a-zA-Z0-9]{48}"#, false),
         "[REDACTED_GITHUB_TOKEN]": (#"gh[pousr]_[a-zA-Z0-9]{36,}"#, false),
         "[REDACTED_AWS_KEY]": (#"AKIA[0-9A-Z]{16}"#, false),
@@ -116,7 +116,31 @@ final class Redactor {
         return merged
     }
 
-    private static func loadUserMap(from url: URL) -> [String: (pattern: String, isGrouped: Bool)]? {
+    static func mergedMap(from overrideFile: URL? = defaultOverrideFile()) -> [String: (String, Bool)] {
+        guard let fileURL = overrideFile else { return builtInMap }
+        let path = fileURL.path
+        let modTime = (try? FileManager.default.attributesOfItem(atPath: path)[.modificationDate] as? Date) ?? nil
+
+        if let cached = cache[path], cached.modTime == modTime {
+            return cached.map
+        }
+
+        var merged = builtInMap
+        if let userMap = loadUserMap(from: fileURL) {
+            for (replacement, (pattern, isGrouped)) in userMap {
+                if pattern == "__DELETE__" {
+                    merged.removeValue(forKey: replacement)
+                } else {
+                    merged[replacement] = (pattern, isGrouped)
+                }
+            }
+        }
+
+        cache[path] = (modTime, merged)
+        return merged
+    }    
+
+    static func loadUserMap(from url: URL) -> [String: (pattern: String, isGrouped: Bool)]? {
         guard let data = try? Data(contentsOf: url) else { return nil }
 
         do {
@@ -144,7 +168,7 @@ final class Redactor {
         }
     }
 
-    private static func defaultOverrideFile() -> URL? {
+    static func defaultOverrideFile() -> URL? {
         FileManager.default
             .homeDirectoryForCurrentUser
             .appendingPathComponent("Library/Application Support/ClipShield/overrides.json")
