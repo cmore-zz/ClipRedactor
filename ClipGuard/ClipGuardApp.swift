@@ -14,7 +14,7 @@ struct ClipGuardApp: App {
     var body: some Scene {
         // Required even if unused
         Settings {
-            EmptyView()
+            ClipGuardSettingsView()
         }
     }
 }

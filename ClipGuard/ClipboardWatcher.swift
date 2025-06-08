@@ -4,6 +4,7 @@ import UserNotifications
 
 class ClipboardWatcher {
     private let pasteboard = NSPasteboard.general
+    private let redactor = Redactor()
     private var changeCount: Int
     private var timer: Timer?
     static var shared: ClipboardWatcher?
@@ -31,7 +32,7 @@ class ClipboardWatcher {
         }
 
         if let content = pasteboard.string(forType: .string) {
-            let redacted = Redactor.redact(content)
+            let redacted = redactor.redact(content)
             if redacted != content {
                 ClipboardManager.shared.storeOriginal(content)
                 pasteboard.clearContents()

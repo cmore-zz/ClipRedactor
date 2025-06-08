@@ -1,7 +1,7 @@
 import Foundation
 
-struct Redactor {
-    enum RedactionRule: Decodable {
+final class Redactor {
+    enum RedactionRule: Codable {
         case simple(String)
         case grouped(pattern: String)
 
@@ -20,10 +20,19 @@ struct Redactor {
                 )
             }
         }
+
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.singleValueContainer()
+            switch self {
+            case .simple(let pattern):
+                try container.encode(pattern)
+            case .grouped(let pattern):
+                try container.encode(["pattern": pattern])
+            }
+        }
     }
 
-    // Hardcoded base redaction map: [replacementText: (pattern, isGrouped)]
-    static let builtInMap: [String: (String, Bool)] = [
+    private static let builtInMap: [String: (String, Bool)] = [
         "[REDACTED_OPENAI_KEY]": (#"sk-[a-zA-Z0-9]{48}"#, false),
         "[REDACTED_GITHUB_TOKEN]": (#"gh[pousr]_[a-zA-Z0-9]{36,}"#, false),
         "[REDACTED_AWS_KEY]": (#"AKIA[0-9A-Z]{16}"#, false),
@@ -34,9 +43,26 @@ struct Redactor {
 
     private static var cache: [String: (modTime: Date?, map: [String: (String, Bool)])] = [:]
 
-    static func redact(_ text: String, overrideFile: URL? = defaultOverrideFile()) -> String {
+    private let overrideFile: URL?
+    private var map: [String: (String, Bool)]
+
+    init(overrideFile: URL? = Redactor.defaultOverrideFile()) {
+        self.overrideFile = overrideFile
+        self.map = Redactor.loadEffectiveMap(from: overrideFile)
+    }
+
+    func redact(_ text: String) -> String {
+        // Re-check file mod time on every redact()
+        if let file = overrideFile {
+            let path = file.path
+            let modTime = (try? FileManager.default.attributesOfItem(atPath: path)[.modificationDate] as? Date) ?? nil
+            if Redactor.cache[path]?.modTime != modTime {
+                map = Redactor.loadEffectiveMap(from: overrideFile)
+            }
+        }
+
         var result = text
-        for (replacement, (pattern, _)) in mergedMap(from: overrideFile) {
+        for (replacement, (pattern, _)) in map {
             guard let regex = try? NSRegularExpression(pattern: pattern) else { continue }
             result = regex.stringByReplacingMatches(
                 in: result,
@@ -48,7 +74,25 @@ struct Redactor {
         return result
     }
 
-    static func mergedMap(from overrideFile: URL? = defaultOverrideFile()) -> [String: (String, Bool)] {
+    func saveUserMap(_ userMap: [String: RedactionRule?]) {
+        guard let file = overrideFile else { return }
+
+        do {
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+            let data = try encoder.encode(userMap)
+            try FileManager.default.createDirectory(
+                at: file.deletingLastPathComponent(),
+                withIntermediateDirectories: true
+            )
+            try data.write(to: file)
+            Redactor.cache.removeValue(forKey: file.path)
+        } catch {
+            print("⚠️ Failed to save ClipGuard user map: \\(error)")
+        }
+    }
+
+    private static func loadEffectiveMap(from overrideFile: URL?) -> [String: (String, Bool)] {
         guard let fileURL = overrideFile else { return builtInMap }
         let path = fileURL.path
         let modTime = (try? FileManager.default.attributesOfItem(atPath: path)[.modificationDate] as? Date) ?? nil
@@ -72,7 +116,7 @@ struct Redactor {
         return merged
     }
 
-    static func loadUserMap(from url: URL) -> [String: (pattern: String, isGrouped: Bool)]? {
+    private static func loadUserMap(from url: URL) -> [String: (pattern: String, isGrouped: Bool)]? {
         guard let data = try? Data(contentsOf: url) else { return nil }
 
         do {
@@ -95,7 +139,7 @@ struct Redactor {
 
             return result
         } catch {
-            print("⚠️ Could not parse ClipGuard overrides.json: \(error)")
+            print("⚠️ Could not parse ClipGuard overrides.json: \\(error)")
             return nil
         }
     }

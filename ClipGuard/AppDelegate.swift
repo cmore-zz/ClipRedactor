@@ -1,5 +1,6 @@
 import AppKit
 import UserNotifications
+import ServiceManagement
 
 class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
     var clipboardWatcher: ClipboardWatcher?
@@ -20,6 +21,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                 print("❌ Notification permission denied")
             }
         }
+        
     }
 
     // Optional: respond to interactions with notifications (e.g., when user clicks a button)
