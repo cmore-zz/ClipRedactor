@@ -12,37 +12,37 @@
 			containerPortal = 73436CD32DF3C636007A1B8D /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 73436CDA2DF3C636007A1B8D;
-			remoteInfo = ClipGuard;
+			remoteInfo = ClipShield;
 		};
 		73436CF42DF3C637007A1B8D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 73436CD32DF3C636007A1B8D /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 73436CDA2DF3C636007A1B8D;
-			remoteInfo = ClipGuard;
+			remoteInfo = ClipShield;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		73436CDB2DF3C636007A1B8D /* ClipGuard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClipGuard.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		73436CE92DF3C637007A1B8D /* ClipGuardTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ClipGuardTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		73436CF32DF3C637007A1B8D /* ClipGuardUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ClipGuardUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		73436CDB2DF3C636007A1B8D /* ClipShield.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClipShield.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		73436CE92DF3C637007A1B8D /* ClipShieldTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ClipShieldTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		73436CF32DF3C637007A1B8D /* ClipShieldUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ClipShieldUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		73436CDD2DF3C636007A1B8D /* ClipGuard */ = {
+		73436CDD2DF3C636007A1B8D /* ClipShield */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ClipGuard;
+			path = ClipShield;
 			sourceTree = "<group>";
 		};
-		73436CEC2DF3C637007A1B8D /* ClipGuardTests */ = {
+		73436CEC2DF3C637007A1B8D /* ClipShieldTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ClipGuardTests;
+			path = ClipShieldTests;
 			sourceTree = "<group>";
 		};
-		73436CF62DF3C637007A1B8D /* ClipGuardUITests */ = {
+		73436CF62DF3C637007A1B8D /* ClipShieldUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ClipGuardUITests;
+			path = ClipShieldUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -75,9 +75,9 @@
 		73436CD22DF3C636007A1B8D = {
 			isa = PBXGroup;
 			children = (
-				73436CDD2DF3C636007A1B8D /* ClipGuard */,
-				73436CEC2DF3C637007A1B8D /* ClipGuardTests */,
-				73436CF62DF3C637007A1B8D /* ClipGuardUITests */,
+				73436CDD2DF3C636007A1B8D /* ClipShield */,
+				73436CEC2DF3C637007A1B8D /* ClipShieldTests */,
+				73436CF62DF3C637007A1B8D /* ClipShieldUITests */,
 				73436CDC2DF3C636007A1B8D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -85,9 +85,9 @@
 		73436CDC2DF3C636007A1B8D /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				73436CDB2DF3C636007A1B8D /* ClipGuard.app */,
-				73436CE92DF3C637007A1B8D /* ClipGuardTests.xctest */,
-				73436CF32DF3C637007A1B8D /* ClipGuardUITests.xctest */,
+				73436CDB2DF3C636007A1B8D /* ClipShield.app */,
+				73436CE92DF3C637007A1B8D /* ClipShieldTests.xctest */,
+				73436CF32DF3C637007A1B8D /* ClipShieldUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -95,9 +95,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		73436CDA2DF3C636007A1B8D /* ClipGuard */ = {
+		73436CDA2DF3C636007A1B8D /* ClipShield */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 73436CFD2DF3C637007A1B8D /* Build configuration list for PBXNativeTarget "ClipGuard" */;
+			buildConfigurationList = 73436CFD2DF3C637007A1B8D /* Build configuration list for PBXNativeTarget "ClipShield" */;
 			buildPhases = (
 				73436CD72DF3C636007A1B8D /* Sources */,
 				73436CD82DF3C636007A1B8D /* Frameworks */,
@@ -108,18 +108,18 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				73436CDD2DF3C636007A1B8D /* ClipGuard */,
+				73436CDD2DF3C636007A1B8D /* ClipShield */,
 			);
-			name = ClipGuard;
+			name = ClipShield;
 			packageProductDependencies = (
 			);
-			productName = ClipGuard;
-			productReference = 73436CDB2DF3C636007A1B8D /* ClipGuard.app */;
+			productName = ClipShield;
+			productReference = 73436CDB2DF3C636007A1B8D /* ClipShield.app */;
 			productType = "com.apple.product-type.application";
 		};
-		73436CE82DF3C637007A1B8D /* ClipGuardTests */ = {
+		73436CE82DF3C637007A1B8D /* ClipShieldTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 73436D002DF3C637007A1B8D /* Build configuration list for PBXNativeTarget "ClipGuardTests" */;
+			buildConfigurationList = 73436D002DF3C637007A1B8D /* Build configuration list for PBXNativeTarget "ClipShieldTests" */;
 			buildPhases = (
 				73436CE52DF3C637007A1B8D /* Sources */,
 				73436CE62DF3C637007A1B8D /* Frameworks */,
@@ -131,18 +131,18 @@
 				73436CEB2DF3C637007A1B8D /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				73436CEC2DF3C637007A1B8D /* ClipGuardTests */,
+				73436CEC2DF3C637007A1B8D /* ClipShieldTests */,
 			);
-			name = ClipGuardTests;
+			name = ClipShieldTests;
 			packageProductDependencies = (
 			);
-			productName = ClipGuardTests;
-			productReference = 73436CE92DF3C637007A1B8D /* ClipGuardTests.xctest */;
+			productName = ClipShieldTests;
+			productReference = 73436CE92DF3C637007A1B8D /* ClipShieldTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		73436CF22DF3C637007A1B8D /* ClipGuardUITests */ = {
+		73436CF22DF3C637007A1B8D /* ClipShieldUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 73436D032DF3C637007A1B8D /* Build configuration list for PBXNativeTarget "ClipGuardUITests" */;
+			buildConfigurationList = 73436D032DF3C637007A1B8D /* Build configuration list for PBXNativeTarget "ClipShieldUITests" */;
 			buildPhases = (
 				73436CEF2DF3C637007A1B8D /* Sources */,
 				73436CF02DF3C637007A1B8D /* Frameworks */,
@@ -154,13 +154,13 @@
 				73436CF52DF3C637007A1B8D /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				73436CF62DF3C637007A1B8D /* ClipGuardUITests */,
+				73436CF62DF3C637007A1B8D /* ClipShieldUITests */,
 			);
-			name = ClipGuardUITests;
+			name = ClipShieldUITests;
 			packageProductDependencies = (
 			);
-			productName = ClipGuardUITests;
-			productReference = 73436CF32DF3C637007A1B8D /* ClipGuardUITests.xctest */;
+			productName = ClipShieldUITests;
+			productReference = 73436CF32DF3C637007A1B8D /* ClipShieldUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -186,7 +186,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 73436CD62DF3C636007A1B8D /* Build configuration list for PBXProject "ClipGuard" */;
+			buildConfigurationList = 73436CD62DF3C636007A1B8D /* Build configuration list for PBXProject "ClipShield" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -200,9 +200,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				73436CDA2DF3C636007A1B8D /* ClipGuard */,
-				73436CE82DF3C637007A1B8D /* ClipGuardTests */,
-				73436CF22DF3C637007A1B8D /* ClipGuardUITests */,
+				73436CDA2DF3C636007A1B8D /* ClipShield */,
+				73436CE82DF3C637007A1B8D /* ClipShieldTests */,
+				73436CF22DF3C637007A1B8D /* ClipShieldUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -258,12 +258,12 @@
 /* Begin PBXTargetDependency section */
 		73436CEB2DF3C637007A1B8D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 73436CDA2DF3C636007A1B8D /* ClipGuard */;
+			target = 73436CDA2DF3C636007A1B8D /* ClipShield */;
 			targetProxy = 73436CEA2DF3C637007A1B8D /* PBXContainerItemProxy */;
 		};
 		73436CF52DF3C637007A1B8D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 73436CDA2DF3C636007A1B8D /* ClipGuard */;
+			target = 73436CDA2DF3C636007A1B8D /* ClipShield */;
 			targetProxy = 73436CF42DF3C637007A1B8D /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -388,7 +388,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = ClipGuard/ClipGuard.entitlements;
+				CODE_SIGN_ENTITLEMENTS = ClipShield/ClipShield.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
@@ -408,7 +408,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = org.cmore.ClipGuard;
+				PRODUCT_BUNDLE_IDENTIFIER = org.cmore.ClipShield;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
@@ -425,7 +425,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = ClipGuard/ClipGuard.entitlements;
+				CODE_SIGN_ENTITLEMENTS = ClipShield/ClipShield.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
@@ -445,7 +445,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = org.cmore.ClipGuard;
+				PRODUCT_BUNDLE_IDENTIFIER = org.cmore.ClipShield;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
@@ -467,14 +467,14 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = org.cmore.ClipGuardTests;
+				PRODUCT_BUNDLE_IDENTIFIER = org.cmore.ClipShieldTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ClipGuard.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ClipGuard";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ClipShield.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ClipShield";
 				XROS_DEPLOYMENT_TARGET = 2.5;
 			};
 			name = Debug;
@@ -489,14 +489,14 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = org.cmore.ClipGuardTests;
+				PRODUCT_BUNDLE_IDENTIFIER = org.cmore.ClipShieldTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ClipGuard.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ClipGuard";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ClipShield.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ClipShield";
 				XROS_DEPLOYMENT_TARGET = 2.5;
 			};
 			name = Release;
@@ -510,14 +510,14 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = org.cmore.ClipGuardUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = org.cmore.ClipShieldUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_TARGET_NAME = ClipGuard;
+				TEST_TARGET_NAME = ClipShield;
 				XROS_DEPLOYMENT_TARGET = 2.5;
 			};
 			name = Debug;
@@ -531,14 +531,14 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = org.cmore.ClipGuardUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = org.cmore.ClipShieldUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_TARGET_NAME = ClipGuard;
+				TEST_TARGET_NAME = ClipShield;
 				XROS_DEPLOYMENT_TARGET = 2.5;
 			};
 			name = Release;
@@ -546,7 +546,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		73436CD62DF3C636007A1B8D /* Build configuration list for PBXProject "ClipGuard" */ = {
+		73436CD62DF3C636007A1B8D /* Build configuration list for PBXProject "ClipShield" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				73436CFB2DF3C637007A1B8D /* Debug */,
@@ -555,7 +555,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		73436CFD2DF3C637007A1B8D /* Build configuration list for PBXNativeTarget "ClipGuard" */ = {
+		73436CFD2DF3C637007A1B8D /* Build configuration list for PBXNativeTarget "ClipShield" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				73436CFE2DF3C637007A1B8D /* Debug */,
@@ -564,7 +564,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		73436D002DF3C637007A1B8D /* Build configuration list for PBXNativeTarget "ClipGuardTests" */ = {
+		73436D002DF3C637007A1B8D /* Build configuration list for PBXNativeTarget "ClipShieldTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				73436D012DF3C637007A1B8D /* Debug */,
@@ -573,7 +573,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		73436D032DF3C637007A1B8D /* Build configuration list for PBXNativeTarget "ClipGuardUITests" */ = {
+		73436D032DF3C637007A1B8D /* Build configuration list for PBXNativeTarget "ClipShieldUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				73436D042DF3C637007A1B8D /* Debug */,

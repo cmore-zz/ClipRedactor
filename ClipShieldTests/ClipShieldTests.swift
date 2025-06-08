@@ -1,13 +1,13 @@
 //
-//  ClipGuardTests.swift
-//  ClipGuardTests
+//  ClipShieldTests.swift
+//  ClipShieldTests
 //
 //  Created by Charles Morehead on 6/6/25.
 //
 
 import Testing
 
-struct ClipGuardTests {
+struct ClipShieldTests {
 
     @Test func example() async throws {
         // Write your test here and use APIs like `#expect(...)` to check expected conditions.

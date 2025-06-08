@@ -15,7 +15,7 @@ class ClipboardWatcher {
     }
 
     func start() {
-        print("ClipGuard: Timer started")
+        print("ClipShield: Timer started")
         timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
 
             self.checkPasteboard()
@@ -26,9 +26,9 @@ class ClipboardWatcher {
         guard pasteboard.changeCount != changeCount else { return }
         changeCount = pasteboard.changeCount
         if let content = pasteboard.string(forType: .string) {
-           print("ClipGuard: Raw clipboard text ->\n\(content)\n---")
+           print("ClipShield: Raw clipboard text ->\n\(content)\n---")
         } else {
-           print("ClipGuard: No plain string found in clipboard")
+           print("ClipShield: No plain string found in clipboard")
         }
 
         if let content = pasteboard.string(forType: .string) {
@@ -37,7 +37,7 @@ class ClipboardWatcher {
                 ClipboardManager.shared.storeOriginal(content)
                 pasteboard.clearContents()
                 pasteboard.setString(redacted, forType: .string)
-                print("ClipGuard: Redacted sensitive content.")
+                print("ClipShield: Redacted sensitive content.")
                 showRedactionNotification(replacement: content, original: redacted)
             }
         }
@@ -52,9 +52,9 @@ class ClipboardWatcher {
 
         // Optional: Add unredact action
         let unredactAction = UNNotificationAction(identifier: "UNREDACT", title: "Unredact", options: [.foreground])
-        let category = UNNotificationCategory(identifier: "CLIPGUARD_REDACTION", actions: [unredactAction], intentIdentifiers: [], options: [])
+        let category = UNNotificationCategory(identifier: "CLIPSHIELD_REDACTION", actions: [unredactAction], intentIdentifiers: [], options: [])
         UNUserNotificationCenter.current().setNotificationCategories([category])
-        content.categoryIdentifier = "CLIPGUARD_REDACTION"
+        content.categoryIdentifier = "CLIPSHIELD_REDACTION"
 
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
         UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)

@@ -2,7 +2,7 @@ import SwiftUI
 import ServiceManagement
 
 
-struct ClipGuardSettingsView: View {
+struct ClipShieldSettingsView: View {
     @AppStorage("launchAtLogin") var launchAtLogin = false
     @State private var testInput = ""
     @State private var redactedOutput = ""

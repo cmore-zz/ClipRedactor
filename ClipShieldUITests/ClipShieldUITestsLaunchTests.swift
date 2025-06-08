@@ -1,13 +1,13 @@
 //
-//  ClipGuardUITestsLaunchTests.swift
-//  ClipGuardUITests
+//  ClipShieldUITestsLaunchTests.swift
+//  ClipShieldUITests
 //
 //  Created by Charles Morehead on 6/6/25.
 //
 
 import XCTest
 
-final class ClipGuardUITestsLaunchTests: XCTestCase {
+final class ClipShieldUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true
