@@ -38,7 +38,11 @@ final class Redactor {
         "[REDACTED_AWS_KEY]": (#"AKIA[0-9A-Z]{16}"#, false),
         "$1[REDACTED_BEARER]$2": (#"(?i)(Authorization\s*:\s*Bearer\s+)[^"\s]+("?)(?=\s|$)"#, true),
         "[REDACTED_PW]": (#"(?i)password\s*[:=]\s*['\"]?\S+['\"]?"#, false),
-        "[REDACTED_IP]": (#"\b\d{1,3}(?:\.\d{1,3}){3}\b"#, false)
+        "[REDACTED_IP]": (#"\b\d{1,3}(?:\.\d{1,3}){3}\b"#, false),
+        "$1[REDACTED_API_KEY]$3": (
+            #"((?:["']|=\s*?))([A-Za-z0-9]{32}|[A-Za-z0-9]{64})(["']?)"#,
+            true
+        )
     ]
 
     private static var cache: [String: (modTime: Date?, map: [String: (String, Bool)])] = [:]

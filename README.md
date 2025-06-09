@@ -10,9 +10,19 @@ It’s especially useful for developers working with LLMs like ChatGPT, who ofte
 - 📎 Only inspects only clipboard text (for now).
 - 🛡️ Provides visual feedback when potentially unsafe content is detected.
 
-## 🧪 Current Status
+## ⚠️ Non-Features
 
-ClipShield is actively under development. The current release includes:
+ClipShield:
+*	❌ Does not currently inspect files
+*	❌ Does not intercept drag-and-drop actions
+*	❌ Does not monitor file selection dialogs
+*	❌ Is not a comprehensive solution for preventing leaks of API keys, passwords, or other secrets
+
+ClipShield only analyzes clipboard text, using configurable regular expressions. You can add your own patterns, but false negatives are possible—and coverage depends on your use case.
+
+## 🧪 Current status
+
+ClipShield is actively under development as of June 2025. The current release includes:
 
 - Clipboard text redaction with an optional “Unredact” button in the system notification.
 - A minimal settings UI with support for editable redaction rules and substitution text.
