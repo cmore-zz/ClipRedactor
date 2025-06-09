@@ -29,3 +29,8 @@ Clone and build manually for now:
 git clone https://github.com/cmore-zz/clipshield.git
 cd clipshield
 open ClipShield.xcodeproj
+```
+
+## 📄 License
+
+MIT License. See [LICENSE](LICENSE).
