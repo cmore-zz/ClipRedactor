@@ -13,7 +13,7 @@ struct ClipShieldApp: App {
 
     var body: some Scene {
         // Required even if unused
-        Settings {
+         Settings {
             ClipShieldSettingsView()
         }
     }

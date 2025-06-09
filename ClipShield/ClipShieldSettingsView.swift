@@ -22,110 +22,127 @@ struct ClipShieldSettingsView: View {
     private let redactor = Redactor()
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Toggle("Start at login", isOn: $launchAtLogin)
-                .onAppear {
-                    launchAtLogin = (SMAppService.mainApp.status == .enabled)
-                    loadRules()
-                }
-                .onChange(of: launchAtLogin) { _, newValue in
-                    do {
-                        if #unavailable(macOS 13.0) {
-                            alertMessage = "Launch at login requires macOS 13 or later."
-                            showAlert = true
-                        } else if newValue {
-                            try SMAppService.mainApp.register()
-                        } else {
-                            try SMAppService.mainApp.unregister()
-                        }
-                    } catch {
-                        alertMessage = "Failed to update login item:\n\(error.localizedDescription)"
-                        showAlert = true
+        GeometryReader { geometry in
+            VStack(alignment: .leading, spacing: 20) {
+                Toggle("Start at login", isOn: $launchAtLogin)
+                    .onAppear {
+                        launchAtLogin = (SMAppService.mainApp.status == .enabled)
+                        loadRules()
                     }
-                }
+                    .onChange(of: launchAtLogin) { _, newValue in
+                        do {
+                            if #unavailable(macOS 13.0) {
+                                alertMessage = "Launch at login requires macOS 13 or later."
+                                showAlert = true
+                            } else if newValue {
+                                try SMAppService.mainApp.register()
+                            } else {
+                                try SMAppService.mainApp.unregister()
+                            }
+                        } catch {
+                            alertMessage = "Failed to update login item:\n\(error.localizedDescription)"
+                            showAlert = true
+                        }
+                    }
 
-            Divider()
+                Divider()
 
-            Text("Redaction Rules")
-                .font(.headline)
+                Text("Redaction Rules")
+                    .font(.headline)
 
-            VStack {
-                HStack {
-                    Text("Replacement")
-                      .frame(width: 180, alignment: .leading)
-                    Text("Pattern")
-                      .frame(maxWidth: .infinity, alignment: .leading)
-                    Text("Grouped?")
-                      .frame(width: 80, alignment: .center)
-                    Spacer()
-                }
-                  .font(.caption)
-                  .foregroundColor(.secondary)                
-                ForEach($rules) { $rule in
-                    HStack {
-                        TextField("Replacement", text: $rule.replacement)
-                          .frame(width: 180)
-                          .onChange(of: rule.replacement) {
-                              dirtyRules = true
-                          }
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            Text("Replacement")
+                              .frame(width: 180, alignment: .leading)
+                            Text("Pattern")
+                              .frame(maxWidth: .infinity, alignment: .leading)
+                            Text("Grouped?")
+                              .frame(width: 80, alignment: .center)
+                            Spacer()
+                        }
+                          .font(.caption)
+                          .foregroundColor(.secondary)
 
-                        TextField("Pattern", text: $rule.pattern)
-                          .onChange(of: rule.pattern) {
-                              dirtyRules = true
-                          }
+                        ForEach($rules) { $rule in
+                            HStack {
+                                TextField("Replacement", text: $rule.replacement)
+                                  .frame(width: 180)
+                                  .onChange(of: rule.replacement) {
+                                      dirtyRules = true
+                                  }
 
-                        Toggle("Grouped", isOn: $rule.isGrouped)
-                          .frame(width: 80, alignment: .center)
-                          .labelsHidden()
-                          .onChange(of: rule.isGrouped) {
-                              dirtyRules = true
-                          }
-                        if !rule.isBuiltin {
-                            Button(role: .destructive) {
-                                rules.removeAll { $0.id == rule.id }
-                                dirtyRules = true
-                            } label: {
-                                Image(systemName: "trash")
+                                TextField("Pattern", text: $rule.pattern)
+                                  .onChange(of: rule.pattern) {
+                                      dirtyRules = true
+                                  }
+
+                                Toggle("Grouped", isOn: $rule.isGrouped)
+                                  .frame(width: 80, alignment: .center)
+                                  .labelsHidden()
+                                  .onChange(of: rule.isGrouped) {
+                                      dirtyRules = true
+                                  }
+
+                                if !rule.isBuiltin {
+                                    Button(role: .destructive) {
+                                        rules.removeAll { $0.id == rule.id }
+                                        dirtyRules = true
+                                    } label: {
+                                        Image(systemName: "trash")
+                                    }
+                                }
                             }
                         }
+
+                        HStack {
+                            Spacer()
+                            Button(action: {
+                                rules.append(RuleEntry(replacement: "", pattern: "", isGrouped: false, isBuiltin: false))
+                                dirtyRules = true
+                            }) {
+                                Image(systemName: "plus")
+                            }
+                            .help("Add Rule")
+                        }
+
+                        Button("Save Rules") {
+                            saveRules()
+                        }
+                        .disabled(!dirtyRules)
+                        .padding(.top, 4)
                     }
                 }
 
-                Button("Add Rule") {
-                    rules.append(RuleEntry(replacement: "", pattern: "", isGrouped: false, isBuiltin: false))
-                    dirtyRules = true
+                Divider()
+
+                Spacer()
+
+                Text("Test Redactor")
+                    .font(.headline)
+
+                TextEditor(text: $testInput)
+                    .frame(maxWidth: .infinity)
+                    .border(Color.gray)
+
+                Button("Redact") {
+                    redactedOutput = redactor.redact(testInput)
                 }
 
-                Button("Save Rules") {
-                    saveRules()
-                }
-                .disabled(!dirtyRules)
-                .padding(.top, 4)
+                Text("Output:")
+                    .font(.subheadline)
+
+                TextEditor(text: .constant(redactedOutput))
+                    .frame(maxWidth: .infinity)
+                    .border(Color.green)
+                    .disabled(true)
+
+                Spacer()
             }
-
-            Divider()
-
-            Text("Test Redactor")
-                .font(.headline)
-
-            TextEditor(text: $testInput)
-                .border(Color.gray)
-
-            Button("Redact") {
-                redactedOutput = redactor.redact(testInput)
-            }
-
-            Text("Output:")
-                .font(.subheadline)
-
-            TextEditor(text: .constant(redactedOutput))
-                .border(Color.green)
-                .disabled(true)
-
-            Spacer()
+            .padding()
+            .frame(minWidth: 500, maxWidth: .infinity, minHeight: 400, maxHeight: .infinity)
         }
-        .padding()
-        .frame(width: 700, height: 600)
+        .background(ResizableWindowAccessor())
         .alert("Launch at Login", isPresented: $showAlert) {
             Button("OK", role: .cancel) {}
         } message: {
@@ -183,4 +200,20 @@ struct ClipShieldSettingsView: View {
             showAlert = true
         }
     }
+}
+
+
+
+struct ResizableWindowAccessor: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSView {
+        DispatchQueue.main.async {
+            if let window = NSApplication.shared.windows.first(where: { $0.isVisible && $0.level == .normal }) {
+                window.styleMask.insert(.resizable)
+                window.minSize = NSSize(width: 500, height: 400)
+            }
+        }
+        return NSView()
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {}
 }
