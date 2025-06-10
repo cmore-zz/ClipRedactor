@@ -1,5 +1,5 @@
 <img src="ClipShield/Assets.xcassets/AppIcon.appiconset/AppIcon128x128@2x.png"
-width="60" align="left" alt="ClipShield Icon"/>
+width="60" align="left" alt="ClipShield Icon" style="position: relative; top: 6px;"/>
 
 # ClipShield
 
