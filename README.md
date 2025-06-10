@@ -1,3 +1,6 @@
+<img src="ClipShield/Assets.xcassets/AppIcon.appiconset/AppIcon128x128@2x.png"
+width="60" align="left" alt="ClipShield Icon"/>
+
 # ClipShield
 
 **ClipShield** is a macOS utility that monitors your clipboard to help prevent accidental data leaks. Inspired by modern privacy needs and built with a minimal, icon-based interface, ClipShield quietly watches your clipboard and flags or redacts potentially unsafe content.
