@@ -1,5 +1,4 @@
-<img src="ClipRedactor/Assets.xcassets/AppIcon.appiconset/AppIcon128x128@2x.png"
-width="60" align="left" alt="ClipRedactor Icon" style="vertical-align: middle;"/>
+<img src="ClipRedactor/Assets.xcassets/AppIcon.appiconset/AppIcon512x512.png" width="128" alt="ClipRedactor Icon"/>
 
 # ClipRedactor
 
