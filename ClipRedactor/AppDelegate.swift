@@ -51,7 +51,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
 
     @objc func showSettings(_ sender: Any?) {
         if self.settingsWindow == nil {
-            let view = ClipShieldSettingsView()
+            let view = ClipRedactorSettingsView()
 
             let window = NSWindow(
                 contentRect: NSRect(x: 0, y: 0, width: 700, height: 600),
@@ -59,7 +59,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                 backing: .buffered, defer: false
             )
             window.center()
-            window.title = "ClipShield Settings"
+            window.title = "ClipRedactor Settings"
             window.isReleasedWhenClosed = false
             window.contentView = NSHostingView(rootView: view)
             window.makeKeyAndOrderFront(nil)

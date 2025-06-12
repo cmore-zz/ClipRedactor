@@ -1,5 +1,5 @@
 import XCTest
-@testable import ClipShield
+@testable import ClipRedactor
 
 final class RedactorTests: XCTestCase {
 

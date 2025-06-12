@@ -1,13 +1,13 @@
 //
-//  ClipShieldUITests.swift
-//  ClipShieldUITests
+//  ClipRedactorUITests.swift
+//  ClipRedactorUITests
 //
 //  Created by Charles Morehead on 6/6/25.
 //
 
 import XCTest
 
-final class ClipShieldUITests: XCTestCase {
+final class ClipRedactorUITests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.

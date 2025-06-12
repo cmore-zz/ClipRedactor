@@ -9,7 +9,7 @@ struct RuleEntry: Identifiable, Hashable {
     var isBuiltin: Bool
 }
 
-struct ClipShieldSettingsView: View {
+struct ClipRedactorSettingsView: View {
     @AppStorage("launchAtLogin") var launchAtLogin = false
     @State private var testInput = ""
     @State private var redactedOutput = ""

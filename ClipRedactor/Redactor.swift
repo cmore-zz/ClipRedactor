@@ -92,7 +92,7 @@ final class Redactor {
             try data.write(to: file)
             Redactor.cache.removeValue(forKey: file.path)
         } catch {
-            print("⚠️ Failed to save ClipShield user map: \\(error)")
+            print("⚠️ Failed to save ClipRedactor user map: \\(error)")
         }
     }
 
@@ -167,7 +167,7 @@ final class Redactor {
 
             return result
         } catch {
-            print("⚠️ Could not parse ClipShield overrides.json: \\(error)")
+            print("⚠️ Could not parse ClipRedactor overrides.json: \\(error)")
             return nil
         }
     }
@@ -175,6 +175,6 @@ final class Redactor {
     static func defaultOverrideFile() -> URL? {
         FileManager.default
             .homeDirectoryForCurrentUser
-            .appendingPathComponent("Library/Application Support/ClipShield/overrides.json")
+            .appendingPathComponent("Library/Application Support/ClipRedactor/overrides.json")
     }
 }
