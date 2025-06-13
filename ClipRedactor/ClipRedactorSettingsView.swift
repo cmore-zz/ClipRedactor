@@ -155,13 +155,17 @@ struct ClipRedactorSettingsView: View {
     private func loadRules() {
         let merged = Redactor.mergedMap()
         let overrideFile = Redactor.defaultOverrideFile()
-        let overrides = (overrideFile.flatMap { Redactor.loadUserMap(from: $0) }).map { dict in
-            Dictionary(uniqueKeysWithValues: dict.map { ($0.replacement, ($0.pattern, $0.requireCodeContext)) })
-        } ?? [:]
+        let overrides: [String: (String, Bool)] = overrideFile.flatMap {
+        Redactor.loadUserMap(from: $0)
+    }?.reduce(into: [String: (String, Bool)]()) { result, def in
+        result[def.replacement] = (def.pattern, def.requireCodeContext ?? false)
+    } ?? [:]
 
         var entries: [RuleEntry] = []
 
-        for (replacement, (pattern, requireCodeContext)) in merged {
+        for (replacement, rule) in merged {
+            let pattern = rule.pattern
+            let requireCodeContext = rule.requireCodeContext
             let isBuiltin = Redactor.builtInMap[replacement] != nil && overrides[replacement] == nil
             entries.append(RuleEntry(replacement: replacement, pattern: pattern, requireCodeContext: requireCodeContext, isBuiltin: isBuiltin))
         }
@@ -170,7 +174,7 @@ struct ClipRedactorSettingsView: View {
     }
 
     private func saveRules() {
-        var userRules: [UserRuleSpec] = []
+        var userRules: [RuleDef] = []
 
         for rule in rules {
             guard !rule.replacement.isEmpty, !rule.pattern.isEmpty else { continue }
@@ -180,7 +184,7 @@ struct ClipRedactorSettingsView: View {
                 continue
             }
 
-            userRules.append(UserRuleSpec(
+            userRules.append(RuleDef(
                                replacement: rule.replacement,
                                pattern: rule.pattern,
                                requireCodeContext: rule.requireCodeContext

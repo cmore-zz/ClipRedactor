@@ -45,6 +45,8 @@ final class RedactorTests: XCTestCase {
         let out3 = redactor.redact(input3)
         
         print("Redacted Output 1: \(out1)")
+        print("Redacted Output 2: \(out2)")
+        print("Redacted Output 3: \(out3)")
 
         XCTAssertEqual(out1, "[REDACTED_BEARER]")
         XCTAssertEqual(out2, "\"[REDACTED_BEARER]\"")
@@ -59,13 +61,15 @@ final class RedactorTests: XCTestCase {
         [
           {
             "replacement": "[REDACTED_EMAIL]",
-            "pattern": "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,}",
-            "requireCodeContext": false
+            "pattern": "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,}"
           },
           {
             "replacement": "$1[REDACTED_COOKIE]$2",
-            "pattern": "(Cookie:\\\\s*)[^;\\\\n]+(;?)",
-            "requireCodeContext": false
+            "pattern": "(Cookie:\\\\s*)[^;\\\\n]+(;?)"
+          },
+          {
+            "replacement": "[REDACTED_PW]",
+            "pattern": ""
           }
         ]
         """
@@ -95,9 +99,12 @@ final class RedactorTests: XCTestCase {
         let overrideFile = tempDir.appendingPathComponent("cacheCheck.json")
 
         let json1 = """
-        {
-            "[REDACTED_X]": "x+"
-        }
+        [
+          {
+            "replacement": "[REDACTED_X]",
+            "pattern": "x+"
+          }
+        ]
         """
         try json1.write(to: overrideFile, atomically: true, encoding: .utf8)
 
@@ -105,13 +112,17 @@ final class RedactorTests: XCTestCase {
         
         let redactor = Redactor(overrideFile: overrideFile)
         let result1 = redactor.redact(input1)
+        print("result1: \(result1)")
         XCTAssertTrue(result1.contains("[REDACTED_X]"))
 
         sleep(1) // Ensure file mod time actually differs
         let json2 = """
-        {
-            "[REDACTED_Y]": "y+"
-        }
+        [
+          {
+            "replacement": "[REDACTED_Y]",
+            "pattern": "y+"
+          }
+        ]
         """
         try json2.write(to: overrideFile, atomically: true, encoding: .utf8)
 
