@@ -52,97 +52,106 @@ struct ClipRedactorSettingsView: View {
                 Text("Redaction Rules")
                     .font(.headline)
 
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack {
-                            Text("Replacement")
-                              .frame(width: 180, alignment: .leading)
-                            Text("Pattern")
-                              .frame(maxWidth: .infinity, alignment: .leading)
-                            Text("Code/Config?")
-                              .frame(width: 100, alignment: .center)
-                            Spacer()
-                        }
-                          .font(.caption)
-                          .foregroundColor(.secondary)
-
-                        ForEach($rules) { $rule in
+                // Main rules section gets priority for vertical space
+                VStack {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 4) {
                             HStack {
-                                TextField("Replacement", text: $rule.replacement)
-                                  .frame(width: 180)
-                                  .onChange(of: rule.replacement) {
-                                      dirtyRules = true
-                                  }
-
-                                TextField("Pattern", text: $rule.pattern)
-                                  .onChange(of: rule.pattern) {
-                                      dirtyRules = true
-                                  }
-
-                                Toggle("", isOn: $rule.requireCodeContext)
+                                Text("Replacement")
+                                  .frame(width: 180, alignment: .leading)
+                                Text("Pattern")
+                                  .frame(maxWidth: .infinity, alignment: .leading)
+                                Text("Code/Config?")
                                   .frame(width: 100, alignment: .center)
-                                  .labelsHidden()
-                                  .onChange(of: rule.requireCodeContext) {
-                                      dirtyRules = true
-                                  }
+                                Spacer()
+                            }
+                              .font(.caption)
+                              .foregroundColor(.secondary)
 
-                                if !rule.isBuiltin {
-                                    Button(role: .destructive) {
-                                        rules.removeAll { $0.id == rule.id }
-                                        dirtyRules = true
-                                    } label: {
-                                        Image(systemName: "trash")
+                            ForEach($rules) { $rule in
+                                HStack {
+                                    TextField("Replacement", text: $rule.replacement)
+                                      .frame(width: 180)
+                                      .onChange(of: rule.replacement) {
+                                          dirtyRules = true
+                                      }
+
+                                    TextField("Pattern", text: $rule.pattern)
+                                      .onChange(of: rule.pattern) {
+                                          dirtyRules = true
+                                      }
+
+                                    Toggle("", isOn: $rule.requireCodeContext)
+                                      .frame(width: 100, alignment: .center)
+                                      .labelsHidden()
+                                      .onChange(of: rule.requireCodeContext) {
+                                          dirtyRules = true
+                                      }
+
+                                    if !rule.isBuiltin {
+                                        Button(role: .destructive) {
+                                            rules.removeAll { $0.id == rule.id }
+                                            dirtyRules = true
+                                        } label: {
+                                            Image(systemName: "trash")
+                                        }
                                     }
                                 }
                             }
                         }
-
-                        HStack {
-                            Spacer()
-                            Button(action: {
-                                rules.append(RuleEntry(replacement: "", pattern: "", requireCodeContext: false, isBuiltin: false))
-                                dirtyRules = true
-                            }) {
-                                Image(systemName: "plus")
-                            }
-                            .help("Add Rule")
-                        }
-
+                    }
+                    HStack {
                         Button("Save Rules") {
                             saveRules()
                         }
                         .disabled(!dirtyRules)
-                        .padding(.top, 4)
+
+                        Spacer()
+
+                        Button(action: {
+                            rules.append(RuleEntry(replacement: "", pattern: "", requireCodeContext: false, isBuiltin: false))
+                            dirtyRules = true
+                        }) {
+                            Image(systemName: "plus")
+                            Text("Add Rule")
+                        }
+                        .help("Add Rule")
                     }
+                    .padding(.top, 4)
                 }
+                .frame(maxHeight: .infinity)
+                .layoutPriority(1)
 
                 Divider()
 
-                Spacer()
+                // Test redactor and output area with fixed heights
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Test Redactor")
+                        .font(.headline)
 
-                Text("Test Redactor")
-                    .font(.headline)
+                    TextEditor(text: $testInput)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 60)
+                        .border(Color.gray)
 
-                TextEditor(text: $testInput)
-                    .frame(maxWidth: .infinity)
-                    .border(Color.gray)
+                    Button("Redact") {
+                        redactedOutput = redactor.redact(testInput)
+                    }
 
-                Button("Redact") {
-                    redactedOutput = redactor.redact(testInput)
+                    Text("Output:")
+                        .font(.subheadline)
+
+                    TextEditor(text: .constant(redactedOutput))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 60)
+                        .border(Color.green)
+                        .disabled(true)
                 }
-
-                Text("Output:")
-                    .font(.subheadline)
-
-                TextEditor(text: .constant(redactedOutput))
-                    .frame(maxWidth: .infinity)
-                    .border(Color.green)
-                    .disabled(true)
 
                 Spacer()
             }
             .padding()
-            .frame(minWidth: 500, maxWidth: .infinity, minHeight: 400, maxHeight: .infinity)
+            .frame(minWidth: 500, idealHeight: 700, maxHeight: .infinity)
         }
         .background(ResizableWindowAccessor())
         .alert("Launch at Login", isPresented: $showAlert) {
