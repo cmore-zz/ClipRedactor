@@ -1,3 +1,4 @@
+import Foundation
 import SwiftUI
 import ServiceManagement
 
@@ -5,9 +6,10 @@ struct RuleEntry: Identifiable, Hashable {
     let id = UUID()
     var replacement: String
     var pattern: String
-    var isGrouped: Bool
+    var requireCodeContext: Bool
     var isBuiltin: Bool
 }
+
 
 struct ClipRedactorSettingsView: View {
     @AppStorage("launchAtLogin") var launchAtLogin = false
@@ -57,8 +59,8 @@ struct ClipRedactorSettingsView: View {
                               .frame(width: 180, alignment: .leading)
                             Text("Pattern")
                               .frame(maxWidth: .infinity, alignment: .leading)
-                            Text("Grouped?")
-                              .frame(width: 80, alignment: .center)
+                            Text("Code/Config?")
+                              .frame(width: 100, alignment: .center)
                             Spacer()
                         }
                           .font(.caption)
@@ -77,10 +79,10 @@ struct ClipRedactorSettingsView: View {
                                       dirtyRules = true
                                   }
 
-                                Toggle("Grouped", isOn: $rule.isGrouped)
-                                  .frame(width: 80, alignment: .center)
+                                Toggle("", isOn: $rule.requireCodeContext)
+                                  .frame(width: 100, alignment: .center)
                                   .labelsHidden()
-                                  .onChange(of: rule.isGrouped) {
+                                  .onChange(of: rule.requireCodeContext) {
                                       dirtyRules = true
                                   }
 
@@ -98,7 +100,7 @@ struct ClipRedactorSettingsView: View {
                         HStack {
                             Spacer()
                             Button(action: {
-                                rules.append(RuleEntry(replacement: "", pattern: "", isGrouped: false, isBuiltin: false))
+                                rules.append(RuleEntry(replacement: "", pattern: "", requireCodeContext: false, isBuiltin: false))
                                 dirtyRules = true
                             }) {
                                 Image(systemName: "plus")
@@ -153,46 +155,53 @@ struct ClipRedactorSettingsView: View {
     private func loadRules() {
         let merged = Redactor.mergedMap()
         let overrideFile = Redactor.defaultOverrideFile()
-        let overrides = overrideFile.flatMap { Redactor.loadUserMap(from: $0) } ?? [:]
+        let overrides = (overrideFile.flatMap { Redactor.loadUserMap(from: $0) }).map { dict in
+            Dictionary(uniqueKeysWithValues: dict.map { ($0.replacement, ($0.pattern, $0.requireCodeContext)) })
+        } ?? [:]
 
         var entries: [RuleEntry] = []
 
-        for (replacement, (pattern, isGrouped)) in merged {
+        for (replacement, (pattern, requireCodeContext)) in merged {
             let isBuiltin = Redactor.builtInMap[replacement] != nil && overrides[replacement] == nil
-            entries.append(RuleEntry(replacement: replacement, pattern: pattern, isGrouped: isGrouped, isBuiltin: isBuiltin))
+            entries.append(RuleEntry(replacement: replacement, pattern: pattern, requireCodeContext: requireCodeContext, isBuiltin: isBuiltin))
         }
 
         self.rules = entries.sorted { $0.replacement < $1.replacement }
     }
 
     private func saveRules() {
-        var jsonObject: [String: Any?] = [:]
+        var userRules: [UserRuleSpec] = []
 
         for rule in rules {
-            if rule.replacement.isEmpty || rule.pattern.isEmpty { continue }
+            guard !rule.replacement.isEmpty, !rule.pattern.isEmpty else { continue }
 
-            let isOverriding = Redactor.builtInMap[rule.replacement] != nil
-            if rule.isBuiltin && !isOverriding { continue }
-
-            if rule.pattern == "__DELETE__" {
-                jsonObject[rule.replacement] = nil
-            } else if rule.isGrouped {
-                jsonObject[rule.replacement] = ["pattern": rule.pattern]
-            } else {
-                jsonObject[rule.replacement] = rule.pattern
+            if rule.isBuiltin {
+                // Don't re-save built-in rules
+                continue
             }
-        }
 
-        guard let data = try? JSONSerialization.data(withJSONObject: jsonObject, options: [.prettyPrinted]),
-              let file = Redactor.defaultOverrideFile()
-        else {
-            alertMessage = "Failed to serialize override rules."
-            showAlert = true
-            return
+            userRules.append(UserRuleSpec(
+                               replacement: rule.replacement,
+                               pattern: rule.pattern,
+                               requireCodeContext: rule.requireCodeContext
+                             ))
         }
 
         do {
-            try FileManager.default.createDirectory(at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+            let data = try encoder.encode(userRules)
+
+            guard let file = Redactor.defaultOverrideFile() else {
+                alertMessage = "Could not determine file location."
+                showAlert = true
+                return
+            }
+
+            try FileManager.default.createDirectory(
+              at: file.deletingLastPathComponent(),
+              withIntermediateDirectories: true
+            )
             try data.write(to: file, options: .atomic)
             dirtyRules = false
         } catch {
@@ -200,9 +209,8 @@ struct ClipRedactorSettingsView: View {
             showAlert = true
         }
     }
+
 }
-
-
 
 struct ResizableWindowAccessor: NSViewRepresentable {
     func makeNSView(context: Context) -> NSView {
