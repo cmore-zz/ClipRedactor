@@ -134,4 +134,31 @@ final class RedactorTests: XCTestCase {
         try? FileManager.default.removeItem(at: overrideFile)
     }
     
+    func testLongestMatchTakesPrecedence() {
+        let tempDir = FileManager.default.temporaryDirectory
+        let overrideFile = tempDir.appendingPathComponent("longestMatch.json")
+
+        let json = """
+        [
+          {
+            "replacement": "[SHORT]",
+            "pattern": "abc"
+          },
+          {
+            "replacement": "[LONG]",
+            "pattern": "abc123"
+          }
+        ]
+        """
+
+        try? json.write(to: overrideFile, atomically: true, encoding: .utf8)
+
+        let redactor = Redactor(overrideFile: overrideFile)
+        let input = "This is abc123 inside."
+        let output = redactor.redact(input)
+
+        print("Longest Match Redacted Output: \(output)")
+        XCTAssertTrue(output.contains("[LONG]"))
+        XCTAssertFalse(output.contains("[SHORT]"))
+    }
 }

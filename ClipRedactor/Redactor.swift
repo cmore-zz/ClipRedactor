@@ -21,6 +21,11 @@ struct RuleDef: Codable {
 }
 
 final class Redactor {
+    struct Match {
+        let range: NSRange
+        let replacement: String
+    }
+
     static let builtInMap: [String: RuleDef] = [
       "[REDACTED_OPENAI_KEY]": RuleDef(replacement: "[REDACTED_OPENAI_KEY]", pattern: #"sk-[a-zA-Z0-9]{48}"#, requireCodeContext: true),
       "[REDACTED_GITHUB_TOKEN]": RuleDef(replacement: "[REDACTED_GITHUB_TOKEN]", pattern: #"gh[pousr]_[a-zA-Z0-9]{36,}"#),
@@ -49,54 +54,67 @@ final class Redactor {
             }
         }
 
-        var result = text
+        var matches: [Match] = []
+
         for (key, def) in map {
             let isGrouped = def.isGroupedPattern
             let fullPattern: String
 
-            if def.requireCodeContext && !isGrouped {
-                let quoted = #"(["'`])("# + def.pattern + #")(\1)"#
-                let keyed  = #"(?:\b\w+\s*[:=]\s*)("# + def.pattern + #")"#
-                fullPattern = "(?:" + quoted + "|" + keyed + ")"
-            } else {
-                fullPattern = def.pattern
-            }
-
-            print("full pattern is \(fullPattern)")
-            print("pre-result is \(result)")
-
-            
             let caseInsensitive = def.pattern.hasPrefix("(?i)")
             let cleanedPattern = def.pattern.replacingOccurrences(of: #"(?i)"#, with: "")
 
-            let adjustedPattern: String
             if def.requireCodeContext && !isGrouped {
                 let quoted = #"(["'`])("# + cleanedPattern + #")(\1)"#
                 let keyed  = #"(?:\b\w+\s*[:=]\s*)("# + cleanedPattern + #")"#
-                adjustedPattern = "(?:" + quoted + "|" + keyed + ")"
+                fullPattern = "(?:" + quoted + "|" + keyed + ")"
             } else {
-                adjustedPattern = cleanedPattern
+                fullPattern = cleanedPattern
             }
 
             let options: NSRegularExpression.Options = caseInsensitive ? [.caseInsensitive] : []
-            guard let regex = try? NSRegularExpression(pattern: adjustedPattern, options: options) else { continue }
+            guard let regex = try? NSRegularExpression(pattern: fullPattern, options: options) else { continue }
 
             let escapedReplacement = NSRegularExpression.escapedTemplate(for: key)
-            let effectiveTemplate: String
+            let effectiveTemplate: String = isGrouped ? key : "$1" + escapedReplacement + "$3"
 
-            if isGrouped {
-                effectiveTemplate = key
-            } else {
-                effectiveTemplate = "$1" + escapedReplacement + "$3"
+            let nsrange = NSRange(text.startIndex..<text.endIndex, in: text)
+            regex.enumerateMatches(in: text, options: [], range: nsrange) { result, _, _ in
+                guard let result = result else { return }
+                let replacement: String
+                if isGrouped {
+                    replacement = regex.replacementString(for: result, in: text, offset: 0, template: key)
+                } else {
+                    replacement = regex.replacementString(for: result, in: text, offset: 0, template: "$1" + escapedReplacement + "$3")
+                }
+                matches.append(Match(range: result.range, replacement: replacement))
             }
-
-            result = regex.stringByReplacingMatches(
-                in: result,
-                options: [],
-                range: NSRange(result.startIndex..., in: result),
-                withTemplate: effectiveTemplate
-            )
         }
+
+        // Sort and filter overlapping
+        matches.sort { lhs, rhs in
+            if lhs.range.location == rhs.range.location {
+                return lhs.range.length > rhs.range.length
+            }
+            return lhs.range.location < rhs.range.location
+        }
+
+        var finalMatches: [Match] = []
+        var lastEnd = -1
+        for m in matches {
+            if m.range.location >= lastEnd {
+                finalMatches.append(m)
+                lastEnd = m.range.location + m.range.length
+            }
+        }
+
+        // Apply in reverse
+        var result = text
+        for m in finalMatches.reversed() {
+            if let range = Range(m.range, in: result) {
+                result.replaceSubrange(range, with: m.replacement)
+            }
+        }
+
         return result
     }
 
