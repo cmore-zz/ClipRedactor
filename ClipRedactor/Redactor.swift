@@ -52,26 +52,42 @@ final class Redactor {
         var result = text
         for (key, def) in map {
             let isGrouped = def.isGroupedPattern
-            let quoteCapturePrefix = #"(?sx)(["'`])?"#
-            let quoteCaptureSuffix = #"(\1)?"#
             let fullPattern: String
+
             if def.requireCodeContext && !isGrouped {
-                fullPattern = quoteCapturePrefix + def.pattern + quoteCaptureSuffix
+                let quoted = #"(["'`])("# + def.pattern + #")(\1)"#
+                let keyed  = #"(?:\b\w+\s*[:=]\s*)("# + def.pattern + #")"#
+                fullPattern = "(?:" + quoted + "|" + keyed + ")"
             } else {
                 fullPattern = def.pattern
             }
 
-            guard let regex = try? NSRegularExpression(pattern: fullPattern) else { continue }
+            print("full pattern is \(fullPattern)")
+            print("pre-result is \(result)")
+
+            
+            let caseInsensitive = def.pattern.hasPrefix("(?i)")
+            let cleanedPattern = def.pattern.replacingOccurrences(of: #"(?i)"#, with: "")
+
+            let adjustedPattern: String
+            if def.requireCodeContext && !isGrouped {
+                let quoted = #"(["'`])("# + cleanedPattern + #")(\1)"#
+                let keyed  = #"(?:\b\w+\s*[:=]\s*)("# + cleanedPattern + #")"#
+                adjustedPattern = "(?:" + quoted + "|" + keyed + ")"
+            } else {
+                adjustedPattern = cleanedPattern
+            }
+
+            let options: NSRegularExpression.Options = caseInsensitive ? [.caseInsensitive] : []
+            guard let regex = try? NSRegularExpression(pattern: adjustedPattern, options: options) else { continue }
 
             let escapedReplacement = NSRegularExpression.escapedTemplate(for: key)
             let effectiveTemplate: String
 
             if isGrouped {
                 effectiveTemplate = key
-            } else if def.requireCodeContext {
-                effectiveTemplate = "$1\(escapedReplacement)$2"
             } else {
-                effectiveTemplate = escapedReplacement
+                effectiveTemplate = "$1" + escapedReplacement + "$3"
             }
 
             result = regex.stringByReplacingMatches(

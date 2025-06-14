@@ -133,6 +133,7 @@ struct ClipRedactorSettingsView: View {
                         .frame(maxWidth: .infinity)
                         .frame(height: 60)
                         .border(Color.gray)
+                    
 
                     Button("Redact") {
                         redactedOutput = redactor.redact(testInput)

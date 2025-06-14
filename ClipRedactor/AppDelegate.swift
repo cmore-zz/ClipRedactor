@@ -28,6 +28,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             }
         }
         
+        UserDefaults.standard.set(false, forKey: "NSAutomaticQuoteSubstitutionEnabled")
+        UserDefaults.standard.set(false, forKey: "NSAutomaticDashSubstitutionEnabled")
+        
         if let mainMenu = NSApp.mainMenu,
            let appMenuItem = mainMenu.item(at: 0),
            let settingsItem = appMenuItem.submenu?.item(withTitle: "Settings…") {

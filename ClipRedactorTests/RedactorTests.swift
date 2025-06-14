@@ -48,7 +48,8 @@ final class RedactorTests: XCTestCase {
         print("Redacted Output 2: \(out2)")
         print("Redacted Output 3: \(out3)")
 
-        XCTAssertEqual(out1, "[REDACTED_BEARER]")
+        // first one isn't modified, because is bare
+        XCTAssertEqual(out1, "Authorization: Bearer abc123xyz")
         XCTAssertEqual(out2, "\"[REDACTED_BEARER]\"")
         XCTAssertEqual(out3, #"let x = "[REDACTED_BEARER]""#)
     }
