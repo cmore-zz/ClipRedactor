@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import ServiceManagement
 
+
 struct RuleEntry: Identifiable, Hashable {
     let id = UUID()
     var replacement: String
@@ -27,6 +28,7 @@ struct ClipRedactorSettingsView: View {
         GeometryReader { geometry in
             VStack(alignment: .leading, spacing: 20) {
                 Toggle("Start at login", isOn: $launchAtLogin)
+                    .padding(.top, 16)
                     .onAppear {
                         launchAtLogin = (SMAppService.mainApp.status == .enabled)
                         loadRules()
@@ -58,16 +60,23 @@ struct ClipRedactorSettingsView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             HStack {
                                 Text("Replacement")
+                                  .help("The replacement redaction text. (must be unique).")
+
                                   .frame(width: 180, alignment: .leading)
+                                  .padding(.leading, 4)
                                 Text("Pattern")
+                                  .help("The regular expression (\"regex\") pattern.")
                                   .frame(maxWidth: .infinity, alignment: .leading)
-                                Text("Code/Config?")
-                                  .frame(width: 100, alignment: .center)
+                                Text("Context\nRequired")
+                                  .help("Only redact when pattern appears in a quoted string or in a key-value setting like \"password: secret123\".")
+                                    .frame(width: 100, alignment: .center)
+                                    .padding(.top, 6)
+                                    .alignmentGuide(.firstTextBaseline) { d in d[VerticalAlignment.center] }
                                 Spacer()
                             }
-                              .font(.caption)
+                              .font(.subheadline.weight(.medium))
                               .foregroundColor(.secondary)
-
+                            Spacer().frame(height: 8)
                             ForEach($rules) { $rule in
                                 HStack {
                                     TextField("Replacement", text: $rule.replacement)
@@ -75,6 +84,8 @@ struct ClipRedactorSettingsView: View {
                                       .onChange(of: rule.replacement) {
                                           dirtyRules = true
                                       }
+                                      .padding(.leading, 4)
+
 
                                     TextField("Pattern", text: $rule.pattern)
                                       .onChange(of: rule.pattern) {
@@ -82,24 +93,38 @@ struct ClipRedactorSettingsView: View {
                                       }
 
                                     Toggle("", isOn: $rule.requireCodeContext)
-                                      .frame(width: 100, alignment: .center)
+                                      .frame(width: 50, alignment: .center)
                                       .labelsHidden()
                                       .onChange(of: rule.requireCodeContext) {
                                           dirtyRules = true
                                       }
 
-                                    if !rule.isBuiltin {
-                                        Button(role: .destructive) {
-                                            rules.removeAll { $0.id == rule.id }
-                                            dirtyRules = true
-                                        } label: {
-                                            Image(systemName: "trash")
-                                        }
+                                    Button(role: .destructive) {
+                                        rules.removeAll { $0.id == rule.id }
+                                        dirtyRules = true
+                                    } label: {
+                                        Image(systemName: "minus")
+                                          .font(.system(size: 10, weight: .regular))
                                     }
+                                    .controlSize(.small)
+                                    .padding(.trailing, 4)
                                 }
                             }
                         }
                     }
+                    .background(Color.gray.opacity(0.035))
+                    .overlay(
+                        Rectangle()
+                            .frame(height: 1)
+                            .foregroundColor(Color.black.opacity(0.1))
+                            .offset(y: -0.5),
+                        alignment: .top
+                    )
+.cornerRadius(6)
+.overlay(
+    RoundedRectangle(cornerRadius: 6)
+        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+)
                     HStack {
                         Button("Save Rules") {
                             saveRules()
@@ -113,7 +138,6 @@ struct ClipRedactorSettingsView: View {
                             dirtyRules = true
                         }) {
                             Image(systemName: "plus")
-                            Text("Add Rule")
                         }
                         .help("Add Rule")
                     }
@@ -125,7 +149,7 @@ struct ClipRedactorSettingsView: View {
                 Divider()
 
                 // Test redactor and output area with fixed heights
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text("Test Redactor")
                         .font(.headline)
 
@@ -151,7 +175,8 @@ struct ClipRedactorSettingsView: View {
 
                 Spacer()
             }
-            .padding()
+              .padding(.horizontal, 12)
+              .padding(.vertical, 4)
             .frame(minWidth: 500, idealHeight: 700, maxHeight: .infinity)
         }
         .background(ResizableWindowAccessor())
@@ -187,18 +212,45 @@ struct ClipRedactorSettingsView: View {
         var userRules: [RuleDef] = []
 
         for rule in rules {
-            guard !rule.replacement.isEmpty, !rule.pattern.isEmpty else { continue }
+            guard !rule.replacement.isEmpty else { continue }
 
-            if rule.isBuiltin {
-                // Don't re-save built-in rules
-                continue
+            if let builtIn = Redactor.builtInMap[rule.replacement] {
+                let modified = rule.pattern != builtIn.pattern || rule.requireCodeContext != builtIn.requireCodeContext
+
+                if rule.pattern.isEmpty {
+                    // Save a null-pattern rule to override and remove built-in rule
+                    userRules.append(RuleDef(
+                        replacement: rule.replacement,
+                        pattern: "",
+                        requireCodeContext: false
+                    ))
+                } else if modified {
+                    // Save override for modified built-in rule
+                    userRules.append(RuleDef(
+                        replacement: rule.replacement,
+                        pattern: rule.pattern,
+                        requireCodeContext: rule.requireCodeContext
+                    ))
+                }
+            } else if !rule.pattern.isEmpty {
+                // New custom rule
+                userRules.append(RuleDef(
+                    replacement: rule.replacement,
+                    pattern: rule.pattern,
+                    requireCodeContext: rule.requireCodeContext
+                ))
             }
-
-            userRules.append(RuleDef(
-                               replacement: rule.replacement,
-                               pattern: rule.pattern,
-                               requireCodeContext: rule.requireCodeContext
-                             ))
+        }
+        
+        let currentReplacements = Set(rules.map { $0.replacement })
+        for (replacement, _) in Redactor.builtInMap {
+            if !currentReplacements.contains(replacement) {
+                userRules.append(RuleDef(
+                    replacement: replacement,
+                    pattern: "",  // Empty pattern indicates deletion
+                    requireCodeContext: false
+                ))
+            }
         }
 
         do {

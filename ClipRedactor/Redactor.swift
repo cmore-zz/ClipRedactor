@@ -143,6 +143,8 @@ final class Redactor {
 
         if let cached = cache[path], cached.modTime == modTime {
             return cached.map
+        } else {
+            cache.removeValue(forKey: path)
         }
 
         var merged = builtInMap
@@ -167,8 +169,9 @@ final class Redactor {
 
         if let cached = cache[path], cached.modTime == modTime {
             return cached.map
+        } else {
+            cache.removeValue(forKey: path)
         }
-
         var merged = builtInMap
         if let userMap = loadUserMap(from: fileURL) {
             for rule in userMap {
