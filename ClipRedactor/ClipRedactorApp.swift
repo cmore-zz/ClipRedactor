@@ -27,17 +27,41 @@ struct ClipRedactorApp: App {
 }
 
 
-struct SplashScreenView: View {
+struct StatusScreenView: View {
+    @ObservedObject var watcher: ClipboardWatcher
+    @FocusState private  var unredactIsFocused: Bool
+
+
     var body: some View {
         VStack(spacing: 10) {
-            Image("SplashIcon")
+            Image("LargeIcon")
                 .resizable()
                 .interpolation(.high)
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 128, height: 128)
-            
-            Text("ClipRedactor starting...")
-                .font(.title3)
+
+            Button(action: {
+                watcher.isRunning ? watcher.stop() : watcher.start()
+            }) {
+                Text(watcher.isRunning ? "Pause" : "Resume")
+            }
+
+            Text("Debug: canUnredact = \(watcher.canUnredact.description)")
+              .font(.caption2)
+              .foregroundColor(.red)
+
+            if watcher.canUnredact {
+                Button("Unredact") {
+                    watcher.restoreLastPreRedactionValue()
+                }
+                  .focused($unredactIsFocused)
+                  .onAppear {
+                      unredactIsFocused = true
+                  }
+            }
+            Text("Status: \(watcher.isRunning ? "Running" : "Paused")")
+              .font(.caption)
+              .foregroundColor(.gray)
         }
         .padding(20)
         .background(Color(NSColor.windowBackgroundColor))

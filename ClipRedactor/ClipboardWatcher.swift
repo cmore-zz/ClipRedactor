@@ -2,7 +2,14 @@ import Foundation
 import AppKit
 import UserNotifications
 
-class ClipboardWatcher {
+class ClipboardWatcher: ObservableObject {
+    @Published var isRunning: Bool = false
+    @Published var canUnredact: Bool = false
+
+    private var lastProcessedContent: String?
+    private var lastRedactedContent: String?
+    private var lastPreredactedContent: String?
+
     private let pasteboard = NSPasteboard.general
     private let redactor = Redactor()
     private var changeCount: Int
@@ -16,30 +23,52 @@ class ClipboardWatcher {
 
     func start() {
         print("ClipRedactor: Timer started")
+        isRunning = true
         timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
 
             self.checkPasteboard()
         }
     }
 
+    func stop() {
+        print("ClipRedactor: Timer stopped")
+        isRunning = false
+        timer?.invalidate()
+        timer = nil
+    }
+
     private func checkPasteboard() {
         guard pasteboard.changeCount != changeCount else { return }
         changeCount = pasteboard.changeCount
-        if let content = pasteboard.string(forType: .string) {
-           print("ClipRedactor: Raw clipboard text ->\n\(content)\n---")
-        } else {
-           print("ClipRedactor: No plain string found in clipboard")
+
+        guard let capturedContent = pasteboard.string(forType: .string) else {
+            lastProcessedContent = nil
+            canUnredact = false
+            print("ClipRedactor: No plain string found in clipboard")
+            return
         }
 
-        if let content = pasteboard.string(forType: .string) {
-            let redacted = redactor.redact(content)
-            if redacted != content {
-                ClipboardManager.shared.storeOriginal(content)
-                pasteboard.clearContents()
-                pasteboard.setString(redacted, forType: .string)
-                print("ClipRedactor: Redacted sensitive content.")
-                showRedactionNotification(replacement: content, original: redacted)
-            }
+        if (capturedContent == lastProcessedContent) {
+            // already processed... ignore
+            return
+        }
+
+        lastProcessedContent = capturedContent
+
+        print("ClipRedactor: Raw clipboard text ->\n\(capturedContent)\n---")
+
+        let redacted = redactor.redact(capturedContent)
+        if redacted != capturedContent {
+            ClipboardManager.shared.storeOriginal(capturedContent)
+            lastRedactedContent = redacted
+            lastPreredactedContent = capturedContent
+            let success = pasteboard.writeObjects([redacted as NSString])
+            print("ClipRedactor: Redacted sensitive content to \(redacted), write success: \(success)")
+            canUnredact = true
+            showRedactionNotification(replacement: capturedContent, original: redacted)
+        } else if capturedContent != lastRedactedContent {
+            print("ClipRedactor: setting to false because content \(capturedContent) does not match \(lastRedactedContent ?? "nil").")
+            canUnredact = false
         }
     }
 
@@ -62,6 +91,13 @@ class ClipboardWatcher {
 
     func updateChangeCount() {
         self.changeCount = pasteboard.changeCount
+    }
+
+    func restoreLastPreRedactionValue() {
+        ClipboardManager.shared.restoreLastPreRedactionValue()
+
+        print("ClipRedactor: setting to false because unredact).")
+        canUnredact = false
     }
 
 }
