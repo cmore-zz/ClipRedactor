@@ -2,17 +2,30 @@ import AppKit
 import UserNotifications
 import ServiceManagement
 import SwiftUI
+import Combine
 
 class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate, NSWindowDelegate {
     var clipboardWatcher: ClipboardWatcher?
     var settingsWindow: NSWindow?
-    var splashWindow: NSWindow?
+    var statusWindow: NSWindow?
+    private var cancellables = Set<AnyCancellable>()
     
     func applicationDidFinishLaunching(_ notification: Notification) {
 
         //        NSApplication.shared.setActivationPolicy(.accessory)
         clipboardWatcher = ClipboardWatcher()
         clipboardWatcher?.start()
+
+        if let watcher = clipboardWatcher {
+            watcher.$canUnredact
+              .receive(on: RunLoop.main)
+              .sink { [weak self] canUnredact in
+                  if canUnredact {
+                      self?.showStatusWindow()
+                  }
+              }
+              .store(in: &cancellables)
+        }
 
         
         let center = UNUserNotificationCenter.current()
@@ -38,7 +51,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             settingsItem.action = #selector(AppDelegate.showSettings(_:))
         }
         DispatchQueue.main.async {
-            self.showSplash()
+            self.showStatusWindow()
         }
     }
     
@@ -59,24 +72,30 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         completionHandler([.banner, .sound])
     }
     
-    func showSplash() {
-        let splashView = SplashScreenView()
+    func showStatusWindow() {
+        
+        if statusWindow != nil {
+            statusWindow?.makeKeyAndOrderFront(nil)
+            return
+        }
+        guard let watcher = clipboardWatcher else { return }
+        let statusView = StatusScreenView(watcher: watcher)
 
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 300, height: 300),
+            contentRect: NSRect(x: 0, y: 0, width: 300, height: 500),
             styleMask: [.titled, .closable],
             backing: .buffered, defer: false
         )
         window.center()
         window.title = "ClipRedactor"
-        window.contentView = NSHostingView(rootView: splashView)
+        window.contentView = NSHostingView(rootView: statusView)
         window.makeKeyAndOrderFront(nil)
-        self.splashWindow = window
+        self.statusWindow = window
         
-        // Optional auto-close fallback (also inside SplashScreenView)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            window.close()
-        }
+        // Optional auto-close fallback (also inside StatusScreenView)
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+//            window.close()
+//        }
     }
     
     
@@ -107,6 +126,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         
         settingsWindow = window
         NSApp.activate(ignoringOtherApps: true)
+    }
+
+    func applicationDidBecomeActive(_ notification: Notification) {
+        showStatusWindow()
+    }
+
+    func applicationDidResignActive(_ notification: Notification) {
+        guard let window = statusWindow, window.isVisible else { return }
+        window.orderOut(nil)
     }
 }
 
