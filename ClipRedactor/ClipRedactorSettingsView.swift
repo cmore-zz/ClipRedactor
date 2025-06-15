@@ -30,6 +30,20 @@ struct ClipRedactorSettingsView: View {
             !rule.pattern.isEmpty && (try? NSRegularExpression(pattern: rule.pattern)) == nil
         }
     }
+    var nonUniqueReplacements: Set<String> {
+        var seen = Set<String>()
+        var duplicates = Set<String>()
+        for rule in rules {
+            if !rule.replacement.isEmpty {
+                if seen.contains(rule.replacement) {
+                    duplicates.insert(rule.replacement)
+                } else {
+                    seen.insert(rule.replacement)
+                }
+            }
+        }
+        return duplicates
+    }
 
     private let redactor = Redactor()
 
@@ -88,8 +102,11 @@ struct ClipRedactorSettingsView: View {
                             Spacer().frame(height: 8)
                             ForEach($rules) { $rule in
                                 HStack {
+                                    let isDuplicate = nonUniqueReplacements.contains(rule.replacement)
                                     TextField("Replacement", text: $rule.replacement)
                                       .frame(width: 180)
+                                      .border(isDuplicate ? Color.red : Color.clear)
+                                       .help(isDuplicate ? "This replacement value is not unique." : "")
                                       .onChange(of: rule.replacement) {
                                           dirtyRules = true
                                       }
@@ -141,7 +158,7 @@ struct ClipRedactorSettingsView: View {
                         Button("Save Rules") {
                             saveRules()
                         }
-                        .disabled(!dirtyRules || hasInvalidRegexes)
+                        .disabled(!dirtyRules || hasInvalidRegexes || !nonUniqueReplacements.isEmpty)
 
                         Spacer()
 
@@ -172,7 +189,17 @@ struct ClipRedactorSettingsView: View {
                     
 
                     Button("Redact") {
-                        redactedOutput = redactor.redact(testInput)
+                        let testMap: [String: RuleDef] = rules.reduce(into: [:]) { result, rule in
+                            if !rule.replacement.isEmpty && !rule.pattern.isEmpty {
+                                result[rule.replacement] = RuleDef(
+                                    replacement: rule.replacement,
+                                    pattern: rule.pattern,
+                                    requireCodeContext: rule.requireCodeContext
+                                )
+                            }
+                        }
+                        let testRedactor = Redactor(customMap: testMap)
+                        redactedOutput = testRedactor.redact(testInput)
                     }
 
                     Text("Output:")

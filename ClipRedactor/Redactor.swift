@@ -44,6 +44,11 @@ final class Redactor {
         self.overrideFile = overrideFile
         self.map = Redactor.loadEffectiveMap(from: overrideFile)
     }
+    
+    init(customMap: [String: RuleDef]) {
+        self.overrideFile = nil
+        self.map = customMap
+    }
 
     func redact(_ text: String) -> String {
         if let file = overrideFile {
