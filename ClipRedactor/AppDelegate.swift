@@ -86,18 +86,46 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             styleMask: [.titled],
             backing: .buffered, defer: false
         )
-        window.center()
+        
+        let xKey = "StatusWindowOriginX"
+        let yKey = "StatusWindowOriginY"
+
+        let hasX = UserDefaults.standard.object(forKey: xKey) != nil
+        let hasY = UserDefaults.standard.object(forKey: yKey) != nil
+        
+        let x = UserDefaults.standard.double(forKey: xKey)
+        let y = UserDefaults.standard.double(forKey: yKey)
+
+        window.delegate = self
+
+        let origin: NSPoint
+        if hasX, hasY {
+            // Nudging down by 22 points (typical title bar height on standard display)
+            origin = NSPoint(x: x, y: y)
+        } else {
+            origin = NSPoint(x: 100, y: 100)
+        }
+
+        window.setFrameTopLeftPoint(NSPoint(x: origin.x, y: origin.y))
+        //window.setFrameOrigin(origin)
+        
         window.title = "ClipRedactor"
         window.contentView = NSHostingView(rootView: statusView)
         window.makeKeyAndOrderFront(nil)
         self.statusWindow = window
         
-        // Optional auto-close fallback (also inside StatusScreenView)
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-//            window.close()
-//        }
+
+
     }
     
+    func windowDidMove(_ notification: Notification) {
+        guard let window = notification.object as? NSWindow else { return }
+        let frame = window.frame
+        let topLeft = NSPoint(x: frame.origin.x, y: frame.origin.y + frame.height)
+        UserDefaults.standard.set(topLeft.x, forKey: "StatusWindowOriginX")
+        UserDefaults.standard.set(topLeft.y, forKey: "StatusWindowOriginY")
+    }
+
     
     @objc func showSettings(_ sender: Any?) {
         if let window = settingsWindow {
