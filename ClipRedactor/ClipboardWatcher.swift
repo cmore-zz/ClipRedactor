@@ -40,6 +40,12 @@ class ClipboardWatcher: ObservableObject {
     private func checkPasteboard() {
         guard pasteboard.changeCount != changeCount else { return }
         changeCount = pasteboard.changeCount
+        
+        if let keyWindow = NSApp.keyWindow,
+           keyWindow.title == "ClipRedactor Settings" {
+            print("ClipRedactor: skipping clipboard check due to settings window focus")
+            return
+        }
 
         guard let capturedContent = pasteboard.string(forType: .string) else {
             lastProcessedContent = nil
