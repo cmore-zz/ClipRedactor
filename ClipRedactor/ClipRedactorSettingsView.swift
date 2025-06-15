@@ -9,6 +9,8 @@ struct RuleEntry: Identifiable, Hashable {
     var pattern: String
     var requireCodeContext: Bool
     var isBuiltin: Bool
+    
+    
 }
 
 
@@ -21,6 +23,13 @@ struct ClipRedactorSettingsView: View {
 
     @State private var rules: [RuleEntry] = []
     @State private var dirtyRules = false
+    @State private var showLogo = true
+    
+    var hasInvalidRegexes: Bool {
+        rules.contains { rule in
+            !rule.pattern.isEmpty && (try? NSRegularExpression(pattern: rule.pattern)) == nil
+        }
+    }
 
     private let redactor = Redactor()
 
@@ -88,9 +97,12 @@ struct ClipRedactorSettingsView: View {
 
 
                                     TextField("Pattern", text: $rule.pattern)
+                                        .border((try? NSRegularExpression(pattern: rule.pattern)) == nil && !rule.pattern.isEmpty ? Color.red : Color.clear)
+                                        .help((try? NSRegularExpression(pattern: rule.pattern)) == nil && !rule.pattern.isEmpty ? "Invalid regular expression syntax." : "")
                                       .onChange(of: rule.pattern) {
                                           dirtyRules = true
                                       }
+
 
                                     Toggle("", isOn: $rule.requireCodeContext)
                                       .frame(width: 50, alignment: .center)
@@ -129,7 +141,7 @@ struct ClipRedactorSettingsView: View {
                         Button("Save Rules") {
                             saveRules()
                         }
-                        .disabled(!dirtyRules)
+                        .disabled(!dirtyRules || hasInvalidRegexes)
 
                         Spacer()
 
@@ -290,4 +302,6 @@ struct ResizableWindowAccessor: NSViewRepresentable {
     }
 
     func updateNSView(_ nsView: NSView, context: Context) {}
+    
+
 }

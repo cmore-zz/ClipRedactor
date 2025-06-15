@@ -62,8 +62,13 @@ class ClipboardWatcher: ObservableObject {
             ClipboardManager.shared.storeOriginal(capturedContent)
             lastRedactedContent = redacted
             lastPreredactedContent = capturedContent
-            let success = pasteboard.writeObjects([redacted as NSString])
-            print("ClipRedactor: Redacted sensitive content to \(redacted), write success: \(success)")
+            let success = pasteboard.clearContents()
+            if (success != 0) {
+                let wrote = pasteboard.setString(redacted, forType: .string)
+                print("Clipboard updated with redacted content. Write success: \(wrote)")
+            } else {
+                print("Failed to clear clipboard.")
+            }
             canUnredact = true
             showRedactionNotification(replacement: capturedContent, original: redacted)
         } else if capturedContent != lastRedactedContent {

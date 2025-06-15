@@ -7,7 +7,7 @@ import Combine
 class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate, NSWindowDelegate {
     var clipboardWatcher: ClipboardWatcher?
     var settingsWindow: NSWindow?
-    var statusWindow: NSWindow?
+    var statusWindow: NSWindow!
     private var cancellables = Set<AnyCancellable>()
     
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -82,8 +82,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         let statusView = StatusScreenView(watcher: watcher)
 
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 300, height: 500),
-            styleMask: [.titled, .closable],
+            contentRect: NSRect(x: 0, y: 0, width: 300, height: 300),
+            styleMask: [.titled],
             backing: .buffered, defer: false
         )
         window.center()
@@ -133,8 +133,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     }
 
     func applicationDidResignActive(_ notification: Notification) {
-        guard let window = statusWindow, window.isVisible else { return }
-        window.orderOut(nil)
+        guard let window = statusWindow else { return }
+        if window.isVisible {
+            window.orderOut(nil)
+        }
     }
 }
 

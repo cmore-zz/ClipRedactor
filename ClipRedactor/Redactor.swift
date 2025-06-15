@@ -75,7 +75,6 @@ final class Redactor {
             guard let regex = try? NSRegularExpression(pattern: fullPattern, options: options) else { continue }
 
             let escapedReplacement = NSRegularExpression.escapedTemplate(for: key)
-            let effectiveTemplate: String = isGrouped ? key : "$1" + escapedReplacement + "$3"
 
             let nsrange = NSRange(text.startIndex..<text.endIndex, in: text)
             regex.enumerateMatches(in: text, options: [], range: nsrange) { result, _, _ in
