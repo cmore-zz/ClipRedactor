@@ -16,6 +16,8 @@ struct RuleEntry: Identifiable, Hashable {
 
 struct ClipRedactorSettingsView: View {
     @AppStorage("launchAtLogin") var launchAtLogin = false
+    @AppStorage("HideInBackground") private var hideInBackground = true
+    @AppStorage("PlayRedactionSound") private var playSound = true
     @State private var testInput = ""
     @State private var redactedOutput = ""
     @State private var showAlert = false
@@ -71,6 +73,23 @@ struct ClipRedactorSettingsView: View {
                             showAlert = true
                         }
                     }
+                
+                Toggle("Hide status window when app is in background", isOn: $hideInBackground)
+
+                
+                Toggle("Play sound when redaction occurs", isOn: $playSound)
+                    .onChange(of: playSound) { _, newValue in
+                        //print(NSSound.soundNames)
+                        // Frog, Pop, Tink (no boop)
+                        if let sound = NSSound(named: "Pop"){
+                            sound.play()
+                        } else {
+                            print("Sound 'Pop' not found")
+                        }
+                    }
+
+
+
 
                 Divider()
 

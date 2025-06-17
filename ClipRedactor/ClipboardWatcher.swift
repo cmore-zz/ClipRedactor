@@ -1,10 +1,12 @@
 import Foundation
 import AppKit
 import UserNotifications
+import SwiftUI
 
 class ClipboardWatcher: ObservableObject {
     @Published var isRunning: Bool = false
     @Published var canUnredact: Bool = false
+    @Published var isTemporarilySuspended: Bool = false
 
     private var lastProcessedContent: String?
     private var lastRedactedContent: String?
@@ -15,6 +17,8 @@ class ClipboardWatcher: ObservableObject {
     private var changeCount: Int
     private var timer: Timer?
     static var shared: ClipboardWatcher?
+    @AppStorage("PlayRedactionSound") private var playSound = true
+
 
     init() {
         self.changeCount = pasteboard.changeCount
@@ -76,6 +80,11 @@ class ClipboardWatcher: ObservableObject {
                 print("Failed to clear clipboard.")
             }
             canUnredact = true
+
+            if playSound {
+                NSSound(named: "Pop")?.play()
+            }
+
             showRedactionNotification(replacement: capturedContent, original: redacted)
         } else if capturedContent != lastRedactedContent {
             print("ClipRedactor: setting to false because content \(capturedContent) does not match \(lastRedactedContent ?? "nil").")
@@ -88,7 +97,6 @@ class ClipboardWatcher: ObservableObject {
         let content = UNMutableNotificationContent()
         content.title = "Clipboard redacted"
         content.body = replacement.contains("REDACTED") ? replacement : "[REDACTED]: \(replacement)"
-        content.sound = .default
 
         // Optional: Add unredact action
         let unredactAction = UNNotificationAction(identifier: "UNREDACT", title: "Unredact", options: [.foreground])

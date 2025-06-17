@@ -13,6 +13,7 @@ struct StatusScreenView: View {
     @FocusState private  var unredactIsFocused: Bool
     @State private var showSplash = true
     @State private var viewIsVisible = false
+    @AppStorage("HideInBackground") private var hideInBackground = true
 
 
     var body: some View {
@@ -32,12 +33,21 @@ struct StatusScreenView: View {
                 VStack(spacing: 12) {
 
 
-                    Button(action: {
-                        watcher.isRunning ? watcher.stop() : watcher.start()
-                    }) {
-                        Text(watcher.isRunning ? "Pause" : "Resume")
+                    if watcher.isTemporarilySuspended {
+                        Button("Resume") {
+                            // disabled, or do nothing
+                        }
+                          .buttonStyle(.borderedProminent)
+                          .disabled(true)
                     }
-                    .buttonStyle(.borderedProminent)
+                    else {
+                        Button(action: {
+                                   watcher.isRunning ? watcher.stop() : watcher.start()
+                               }) {
+                            Text(watcher.isRunning ? "Pause" : "Resume")
+                        }
+                          .buttonStyle(.borderedProminent)
+                    }
 
 //                    Text("Debug: canUnredact = \(watcher.canUnredact.description)")
 //                        .font(.caption2)
@@ -53,11 +63,21 @@ struct StatusScreenView: View {
                             unredactIsFocused = true
                         }
                     }
+                    
+                    let statusText: String = {
+                        if watcher.isRunning {
+                            return "Running"
+                        } else if watcher.isTemporarilySuspended {
+                            return "Paused for settings"
+                        } else {
+                            return "Paused"
+                        }
+                    }()
 
-                    Text("Status: \(watcher.isRunning ? "Running" : "Paused")")
+                    Text("Status: \(statusText)")
                         .font(.caption)
-                        .foregroundColor(watcher.isRunning ? .gray : .red)
-                }
+                        .foregroundColor(watcher.isRunning ? .gray : .red)}
+                    
                 .transition(.opacity)
             }
         }
@@ -75,7 +95,7 @@ struct StatusScreenView: View {
             }
         }
         .onChange(of: watcher.canUnredact) {
-            if watcher.canUnredact == false {
+            if (watcher.canUnredact == false && hideInBackground) {
                 if let window = NSApp.windows.first(where: { $0.title == "ClipRedactor" }), !window.isKeyWindow {
                     window.orderOut(nil)
                 }

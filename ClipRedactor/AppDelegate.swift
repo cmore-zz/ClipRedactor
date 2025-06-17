@@ -9,6 +9,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     var settingsWindow: NSWindow?
     var statusWindow: NSWindow!
     private var cancellables = Set<AnyCancellable>()
+    private var redactionWasRunning = false
+
+    
+    @AppStorage("HideInBackground") private var hideInBackground = true
+    @AppStorage("PlayRedactionSound") private var playSound = true
     
     let settingsWindowXKey = "SettingsWindowOriginX"
     let settingsWindowYKey = "SettingsWindowOriginY"
@@ -16,6 +21,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     let settingsWindowHKey = "SettingsWindowHeight"
     
     func applicationDidFinishLaunching(_ notification: Notification) {
+        
+        UserDefaults.standard.register(defaults: [
+            "HideInBackground": true,
+            "PlayRedactionSound": true
+        ])
 
         //        NSApplication.shared.setActivationPolicy(.accessory)
         clipboardWatcher = ClipboardWatcher()
@@ -156,7 +166,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             NSApp.activate(ignoringOtherApps: true)
             return
         }
-        
+                
         let view = ClipRedactorSettingsView()
         let defaults = UserDefaults.standard
         let hasX = defaults.object(forKey: settingsWindowXKey) != nil
@@ -187,6 +197,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         self.settingsWindow = window
         window.makeKeyAndOrderFront(nil)
         
+        if let watcher = clipboardWatcher {
+            redactionWasRunning = watcher.isRunning
+            watcher.stop()
+            watcher.isTemporarilySuspended = true
+        }
         NSApp.activate(ignoringOtherApps: true)
     }
 
@@ -196,7 +211,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
 
     func applicationDidResignActive(_ notification: Notification) {
         guard let window = statusWindow else { return }
-        if window.isVisible {
+        
+        if hideInBackground {
             window.orderOut(nil)
         }
     }
@@ -207,6 +223,11 @@ extension AppDelegate {
         if let closedWindow = notification.object as? NSWindow,
            closedWindow == self.settingsWindow {
             self.settingsWindow = nil
+
+            clipboardWatcher?.isTemporarilySuspended = false
+            if redactionWasRunning {
+                clipboardWatcher?.start()
+            }
         }
     }
 }
