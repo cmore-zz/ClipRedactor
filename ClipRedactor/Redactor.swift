@@ -24,6 +24,7 @@ final class Redactor {
     struct Match {
         let range: NSRange
         let replacement: String
+        let key: String
     }
 
     static let builtInMap: [String: RuleDef] = [
@@ -50,7 +51,7 @@ final class Redactor {
         self.map = customMap
     }
 
-    func redact(_ text: String) -> String {
+    func redact(_ text: String) ->(redacted: String, firstMatch: Match?) {
         if let file = overrideFile {
             let path = file.path
             let modTime = (try? FileManager.default.attributesOfItem(atPath: path)[.modificationDate] as? Date) ?? nil
@@ -90,7 +91,7 @@ final class Redactor {
                 } else {
                     replacement = regex.replacementString(for: result, in: text, offset: 0, template: "$1" + escapedReplacement + "$3")
                 }
-                matches.append(Match(range: result.range, replacement: replacement))
+                matches.append(Match(range: result.range, replacement: replacement, key: key))
             }
         }
 
@@ -119,7 +120,7 @@ final class Redactor {
             }
         }
 
-        return result
+        return (result, finalMatches.first)
     }
 
     func saveUserMap(_ userRules: [UserRuleSpec]) {

@@ -81,15 +81,8 @@ struct ClipRedactorSettingsView: View {
                     .onChange(of: playSound) { _, newValue in
                         //print(NSSound.soundNames)
                         // Frog, Pop, Tink (no boop)
-                        if let sound = NSSound(named: "Pop"){
-                            sound.play()
-                        } else {
-                            print("Sound 'Pop' not found")
-                        }
+                        SoundManager.shared.play()
                     }
-
-
-
 
                 Divider()
 
@@ -218,7 +211,8 @@ struct ClipRedactorSettingsView: View {
                             }
                         }
                         let testRedactor = Redactor(customMap: testMap)
-                        redactedOutput = testRedactor.redact(testInput)
+                        let (redacted, _) = testRedactor.redact(testInput)
+                        redactedOutput = redacted
                     }
 
                     Text("Output:")

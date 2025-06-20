@@ -3,14 +3,20 @@ import AppKit
 import UserNotifications
 import SwiftUI
 
+struct RedactionResult {
+    let originalText: String
+    let redactedText: String
+    let key: String
+}
+
 class ClipboardWatcher: ObservableObject {
     @Published var isRunning: Bool = false
     @Published var canUnredact: Bool = false
     @Published var isTemporarilySuspended: Bool = false
 
     private var lastProcessedContent: String?
-    private var lastRedactedContent: String?
-    private var lastPreredactedContent: String?
+    @Published var lastRedactionResult: RedactionResult?
+
 
     private let pasteboard = NSPasteboard.general
     private let redactor = Redactor()
@@ -67,11 +73,15 @@ class ClipboardWatcher: ObservableObject {
 
         print("ClipRedactor: Raw clipboard text ->\n\(capturedContent)\n---")
 
-        let redacted = redactor.redact(capturedContent)
+        let (redacted, firstMatch) = redactor.redact(capturedContent)
         if redacted != capturedContent {
+            guard let firstMatch = firstMatch else {
+                fatalError("Expected a match but found nil")
+            }
             ClipboardManager.shared.storeOriginal(capturedContent)
-            lastRedactedContent = redacted
-            lastPreredactedContent = capturedContent
+            lastRedactionResult = RedactionResult(
+                originalText: capturedContent, redactedText: redacted, key: firstMatch.key
+            )
             let success = pasteboard.clearContents()
             if (success != 0) {
                 let wrote = pasteboard.setString(redacted, forType: .string)
@@ -82,12 +92,13 @@ class ClipboardWatcher: ObservableObject {
             canUnredact = true
 
             if playSound {
-                NSSound(named: "Pop")?.play()
+                SoundManager.shared.play()
             }
 
             showRedactionNotification(replacement: capturedContent, original: redacted)
-        } else if capturedContent != lastRedactedContent {
-            print("ClipRedactor: setting to false because content \(capturedContent) does not match \(lastRedactedContent ?? "nil").")
+        } else if let lastResult = lastRedactionResult,
+                  capturedContent != lastResult.redactedText {
+            print("ClipRedactor: setting to false because content \(capturedContent) does not match \(lastRedactionResult?.redactedText ?? "nil").")
             canUnredact = false
         }
     }

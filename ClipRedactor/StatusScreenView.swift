@@ -25,64 +25,59 @@ struct StatusScreenView: View {
                         .resizable()
                         .interpolation(.high)
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: 94, height: 94)
+                        .frame(width: 120, height: 120)
                     Spacer()
                 }
                 .transition(.opacity)
             } else {
                 VStack(spacing: 12) {
-
-
-                    if watcher.isTemporarilySuspended {
-                        Button("Resume") {
-                            // disabled, or do nothing
-                        }
-                          .buttonStyle(.borderedProminent)
-                          .disabled(true)
+                    // Pause/Resume control
+                    Button(action: {
+                               watcher.isRunning ? watcher.stop() : watcher.start()
+                           }) {
+                        Text(watcher.isRunning ? "Pause" : "Resume")
                     }
-                    else {
-                        Button(action: {
-                                   watcher.isRunning ? watcher.stop() : watcher.start()
-                               }) {
-                            Text(watcher.isRunning ? "Pause" : "Resume")
+                      .buttonStyle(.borderedProminent)
+                      .disabled(watcher.isTemporarilySuspended)
+
+                    // Status text
+                    Text("Status: \(watcher.isRunning ? "Running" : (watcher.isTemporarilySuspended ? "Paused for settings" : "Paused"))")
+                      .font(.caption)
+                      .foregroundColor(watcher.isRunning ? .gray : .red)
+
+                    // Unredact button
+                    if watcher.canUnredact {
+                        VStack(spacing: 4) {
+                            Spacer().frame(height: 4) // Small gap above the button
+                            Button("Unredact") {
+                                watcher.restoreLastPreRedactionValue()
+                            }
+                              .buttonStyle(.borderedProminent)
+                              .focused($unredactIsFocused)
+                              .onAppear { unredactIsFocused = true }
                         }
-                          .buttonStyle(.borderedProminent)
                     }
+
+                    // Redaction summary
+                    if let lastRedaction = watcher.lastRedactionResult {
+                        VStack(spacing: 4) {
+                            Text("\(lastRedaction.key): \(lastRedaction.originalText.prefix(80).trimmingCharacters(in: .whitespacesAndNewlines))…")
+                              .font(.caption)
+                              .foregroundColor(.secondary)
+                              .multilineTextAlignment(.center)
+                              .lineLimit(1)
+                        }
+                    }
+                }
 
 //                    Text("Debug: canUnredact = \(watcher.canUnredact.description)")
 //                        .font(.caption2)
 //                        .foregroundColor(.red)
 
-                    if watcher.canUnredact {
-                        Button("Unredact") {
-                            watcher.restoreLastPreRedactionValue()
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .focused($unredactIsFocused)
-                        .onAppear {
-                            unredactIsFocused = true
-                        }
-                    }
-                    
-                    let statusText: String = {
-                        if watcher.isRunning {
-                            return "Running"
-                        } else if watcher.isTemporarilySuspended {
-                            return "Paused for settings"
-                        } else {
-                            return "Paused"
-                        }
-                    }()
-
-                    Text("Status: \(statusText)")
-                        .font(.caption)
-                        .foregroundColor(watcher.isRunning ? .gray : .red)}
-                    
-                .transition(.opacity)
             }
         }
         .padding(20)
-        .frame(width: 180, height: 100)
+        .frame(width: UIConstants.StatusWindow.width, height: UIConstants.StatusWindow.height)
         .background(Color(NSColor.windowBackgroundColor))
         .onAppear {
             viewIsVisible = true

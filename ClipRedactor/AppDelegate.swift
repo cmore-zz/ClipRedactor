@@ -95,12 +95,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         }
         guard let watcher = clipboardWatcher else { return }
         let statusView = StatusScreenView(watcher: watcher)
-
-        let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 300, height: 300),
-            styleMask: [.titled],
-            backing: .buffered, defer: false
-        )
+        
+        let width = UIConstants.StatusWindow.width
+        let height = UIConstants.StatusWindow.height
         
         let xKey = "StatusWindowOriginX"
         let yKey = "StatusWindowOriginY"
@@ -111,7 +108,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         let x = UserDefaults.standard.double(forKey: xKey)
         let y = UserDefaults.standard.double(forKey: yKey)
 
-        window.delegate = self
 
         let origin: NSPoint
         if hasX, hasY {
@@ -120,8 +116,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         } else {
             origin = NSPoint(x: 100, y: 100)
         }
+        
 
-        window.setFrameTopLeftPoint(NSPoint(x: origin.x, y: origin.y))
+        let frame = NSRect(x: origin.x, y: origin.y - CGFloat(height), width: CGFloat(width), height: CGFloat(height))
+        let window = NSWindow(
+            contentRect: frame,
+            styleMask: [.titled],
+            backing: .buffered, defer: false
+        )
+ 
+
+        window.delegate = self
+   
+//        window.setFrameTopLeftPoint(NSPoint(x: origin.x, y: origin.y))
         //window.setFrameOrigin(origin)
         
         window.title = "ClipRedactor"
